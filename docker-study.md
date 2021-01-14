@@ -103,7 +103,7 @@ $ docker inspect [name/id]
 + **数据卷是宿主机中的一个目录或者文件**
 + **当容器目录和数据卷绑定后，对方的修改会立即同步**
 
-<img src="https://github.com/ddfoever/docker-learning/blob/master/img/image-20210114220116315.png" alt="image-20210114220116315" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/ddfoever/docker-learning/master/img/image-20210114220116315.png" alt="image-20210114220116315" style="zoom:50%;" />
 
 
 
@@ -142,7 +142,7 @@ $ docker inspect [name/id]
 > 1. 多个容器挂载同一个数据卷（容器多了的话， 比较麻烦）
 > 2. 数据卷容器
 
-<img src="https://github.com/ddfoever/docker-learning/blob/master/img/image-20210114224137052.png" alt="image-20210114224137052" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/ddfoever/docker-learning/master/img/image-20210114224137052.png" alt="image-20210114224137052" style="zoom:50%;" />
 
 + 创建启动C3数据卷容器，使用-v参数，设置数据卷
 
