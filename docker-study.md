@@ -103,7 +103,9 @@ $ docker inspect [name/id]
 + **数据卷是宿主机中的一个目录或者文件**
 + **当容器目录和数据卷绑定后，对方的修改会立即同步**
 
-<img src="img/image-20210114220116315.png" alt="image-20210114220116315" style="zoom:50%;" />
+<img src="https://github.com/ddfoever/docker-learning/blob/master/img/image-20210114220116315.png" alt="image-20210114220116315" style="zoom:50%;" />
+
+
 
 **一个容器可以挂载多个数据卷，多个容器也可以挂载一个数据卷**
 
@@ -140,7 +142,7 @@ $ docker inspect [name/id]
 > 1. 多个容器挂载同一个数据卷（容器多了的话， 比较麻烦）
 > 2. 数据卷容器
 
-<img src="img/image-20210114224137052.png" alt="image-20210114224137052" style="zoom:50%;" />
+<img src="https://github.com/ddfoever/docker-learning/blob/master/img/image-20210114224137052.png" alt="image-20210114224137052" style="zoom:50%;" />
 
 + 创建启动C3数据卷容器，使用-v参数，设置数据卷
 
@@ -169,6 +171,16 @@ $ docker inspect [name/id]
 > 3. **数据卷容器**
 >    + **创建一个容器，挂载一个目录，让其他容器继承该容器（--volumes-from）**
 >    + **通过简单方式实现数据卷配置** 	
+
+##### 2.4 Docker应用部署
+
+###### 2.4.1 myslq 部署
+
+###### 2.4.2 Tomcat 部署
+
+###### 2.4.3 Ngnix部署
+
+###### 2.4.4 Redis部署
 
 
 
