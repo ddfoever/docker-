@@ -12,7 +12,69 @@ typora-copy-images-to: img
 
 ```小结：是一种容器技术，解决软件跨环境迁移技术```
 
+##### 1.1 dokcer 安装
+
+  ```shell
+# 1.apt包更新到最新
+$ apt update
+
+# 安装包允许apt通过https使用仓库
+$ sudo dpkg --configure -a
+$ sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+
+#添加Docker官方GPG key
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+#设置Docker稳定版仓库
+$ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+#更新apt源索引
+$ sudo apt-get update
+
+#安装docker
+$ sudo apt-get install docker-ce
+
+  ```
+
+##### 1.2 docker 容器镜像加速
+
+使用阿里云镜像
+
+```shell
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://x6wqiczq.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+
+
 #### 2. Docker 命令
+
+##### 2.0 容器
+
+```shell
+# 容器重启
+$ systemctl restart docker
+
+# docker守护进程重新加载
+$ systemctl daemon-reload
+
+# 启动docker
+$ systemctl start docker
+
+# 查看docker状态
+$ systemctl status docker
+
+#开机启动docker
+$ systemctl enable docker
+```
+
+
 
 ##### 2.1 镜像
 
@@ -65,7 +127,7 @@ $ docker stop [name/id]
 $ docker start [name/id]
 
 # 进入容器
-$ docker exec
+$ docker exec -it [name/id] /bin/bash
 
 # 删除容器
 $ docker rm [id/name]
