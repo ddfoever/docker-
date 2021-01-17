@@ -238,11 +238,261 @@ $ docker inspect [name/id]
 
 ###### 2.4.1 myslq 部署
 
+ ```shell
+# 创建mysql 容器，并且创建相应的mysql 目录
+$ cd ~
+$ mkdir mysql
+$ cd mysql
+
+# 创建myslq 容器并且和宿主机相互映射
+$ docker run -it --name=c_mysql \
+-p 3306:3306 \
+-v $PWD/conf:/etc/mysql/conf.d \
+-v $PWD/logs:/logs \
+-v $PWD/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD:root mysql:5.7
+
+ ```
+
 ###### 2.4.2 Tomcat 部署
 
 ###### 2.4.3 Ngnix部署
 
 ###### 2.4.4 Redis部署
+
+##### 2.5 dockerfile
+
+###### 2.5.1 dokcer原理
+
+> 思考：
+>
+> 1. docker镜像的本质是什么？ <font color='red'>一个分层的文件系统</font>
+>
+>    ```markdown
+>    ##### dokcer镜像原理
+>    操作系统组成部分：
+>     1. 进程调度子系统
+>     2. 进程通信子系统
+>     3. 内存管理子系统
+>     4. 设备管理子系统
+>     5. 文件管理子系统
+>     6. 网络通信子系统
+>     7. 作业控制子系统
+>    ```
+>
+>    <img src="img/image-20210116220219158.png" alt="image-20210116220219158" style="zoom:50%;" />
+>
+>    ```markdown
+>     ### 其中Linux文件系统bootfs和rootfs两部分组成
+>     + bootfs: 包含了bootloader（引导加载程序）和kernel（内核）
+>     + rootfs: root文件系统，包含的就是经典Linux系统中的/dev，/proc，/bin，/etc等标准目录和文件
+>     + 不同的linux发行版本，bootfs基本一样，而rootfs不同，如ubuntu，centos等。
+>    ```
+>
+>    ```markdown
+>    #### docker镜像是由特殊的文件系统叠加而成
+>    + 最低端是bootfs,并使用宿主机的rootfs
+>    + 第二层root文件系统rootfs，称为base image
+>    + 然后再往上可以叠加其他镜像文件
+>    + 统一文件系统技术能够将不同的层整合成一个文件系统，为这些系统提供一个统一的视角，这样就隐藏了多层的存在，在用户的角度来看，只存在一个文件系统
+>    + 一个镜像可以放在另一个镜像上面，位于下面的镜像称为父镜像，最底部的成为基础镜像
+>    + 当一个镜像启动容器时，Docker会在最顶层加载一个读写文件系统作为容器
+>    ```
+>
+>    <img src="img/image-20210116221815408.png" alt="image-20210116221815408" style="zoom:50%;" />
+>
+>    1. docker中一个centos镜像为什么只有200mb，而一个centos操作系统的iso文件要几个G    复用了centos操作系统的bootfs，只有rootfs和其他镜像层。
+>
+> 2. Docker中一个tomcat镜像有个500MB，而一个tomcat安装包只有70MB?  
+
+###### 2.5.2 概念作用
+
+###### 2.5.3 镜像制作
+
+    ###### docker 镜像制作
+
+```shell
+#1. 容器转镜像
+$ docker commit [container_id] [name]:[version]
+$ docker save -o xxx.tar
+$ docker load -i xxx.tar
+
+```
+
+<img src="img/image-20210116230404699.png" alt="image-20210116230404699" style="zoom:50%;" />
+
+````shell
+# dockerfile
+# 1.Dockerfile 是一个文本文件
+# 2.包含了一条条的指令
+# 3.每一条指令构建一层，基于基础镜像，最终构建出一个新的镜像
+
+
+````
+
+###### 2.5.4 自定义centos
+
+```shell
+案例：需求
+自定义centos7镜像，要求：
+1. 默认登录 路径为/usr
+2. 可以使用vim
+案例：实现步骤
+1. 实现父镜像：FROM centos：7
+2.定义作者信息 MAINTAINER itan
+3. 执行安装命令 RUN yum install -y vim
+4. 定义默认的工作目录： WORKDIR /usr
+5. 定义容器启动执行的命令： CMD /bin/bash
+
+```
+
+```shell
+# dockerfile 的构建镜像的命令
+$ docker build -f [dockerfile 的路径] -t [镜像名称:version] .   //不加[镜像名称:version] 表示latest ，最新版本
+```
+
+###### 2.5.5  docker部署springboot 项目
+
+```shell
+# 创建一个springboot项目 并且打包上传到linux 服务器
+# 使用有权限的tmp 文件夹， 并且切换到root账户， mv到需要的文件夹
+```
+
+```shell
+# 案例：定义dockerfile 发布springboot项目
+
+# 案例：实现步骤：
+# 1. 定义父镜像，FROM java:8
+2.   定义作者信息  MAINTAINER itan
+3. 添加jar包到容器中  ADD  springboot.jar app.jar
+4.  CMD java -jar
+```
+
+##### 2.6 docker 服务编排
+
+###### 2.6.1 服务编排概念
+
+    ```markdown
+# 服务编排
+微服务架构的应用系统中一般包含若干个微服务，每个微服务一般都会部署多个实例，如果每个微服务都要手动启停，维护工作量很大。
+1. 要从dockerfile build image或者去dockerhub 拉去image
+2. 要创建多个container
+3. 要管理这些container（启动停止删除）
+    ```
+
+<font color='red'>**服务编排：按照一定的业务规则批量管理容器**</font>
+
+###### 2.6.2  Docker compose 概述
+
+ ```markdown
+docker compose 是一个编排多容器分布式部署的工具，提供命令集管理容器化应用的完整开发周期，包括服务构建，启动和停止，使用步骤：
+1. 利用Dockerfile定义运行环境镜像
+2. 使用docker-compose.yml定义组成应用的各服务
+3. 运行docker-compose up 启动
+ ```
+
+<img src="img/image-20210117222435292.png" alt="image-20210117222435292" style="zoom:50%;" />
+
+###### 2.6.3 docker-compse 安装
+
+````shell
+#	Compose 目前已经完全支持Linux、mac、windows,在我们安装Compose之前，需要先安装docker
+$ curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-`uname -s`-`uname -m` -o /user/local/bin/docker-compose
+$ chmod +x /usr/local/bin/docker-compose
+$ docker-compose -version
+````
+
+```shell
+# 另一种方式
+$ curl -L https://github.com/docker/compose/releases/download/1.22.0/run.sh > /usr/local/bin/docker-compose
+$ chmod +x /usr/local/bin/docker-compose
+$ docker-compose -v
+```
+
+<font color='red'>**chmod +x的意思就是给执行权限**</font>
+
+###### 2.6.4 删除docker-compose
+
+```shell
+# 二进制包安装的，删除二进制文件即可
+$ rm /usr/local/bin/docker-compose
+```
+
+###### 2.6.5 案例
+
+
+
+```shell
+# 使用ngnix+springboot 编排部署容器
+1.
+$ cd /usr
+$ mkdir docker-compose
+$ cd docker-compose
+$ vim docker-compose.yml
+
+
+```
+
+2. **创建docker-compose.yml**
+
+   ```shell
+   version: '3'
+   services:
+     nginx:
+       image: nginx
+       ports:
+         - 80:80
+       links:
+         - app
+       volumes:
+         - ./nginx/conf.d:/etc/nginx/conf.d
+     app:
+       image: app
+       expose:
+         - ="8080"
+         
+         
+   version: '3'
+   services:
+     nginx:
+       image: nginx:latest
+       ports:
+         - 80:80
+       links:
+         - app
+       volumes:
+         - ./nginx/conf.d:/etc/nginx/conf.d
+     app:
+       image: app:1
+       expose:
+         - "8080"
+   
+         
+   ```
+
+3. **创建./nginx/conf.d目录**
+
+   ```shell
+   mkdir -p ./nginx/conf.d
+   ```
+
+4. **在./nginx/conf.d目录下面创建itan.conf(nginx 的配置文件名随便起，但是后缀必须是.conf)**
+
+   ```shell
+   ### 配置app的反向代理
+   server {
+     listen 80;
+     access_log off;
+     location / {
+      proxy_pass http://app:8080;
+     }
+   }
+   
+   ```
+
+5. **使用docker-compose up启动** 
+
+##### 2.7 docker 私有仓库搭建
 
 
 
